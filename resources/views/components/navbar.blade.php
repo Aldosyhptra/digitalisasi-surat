@@ -1,38 +1,58 @@
-<nav class="bg-gray-900 text-white">
-    <div class="container mx-auto px-4 flex items-center justify-between h-16">
-        {{-- Brand --}}
-        <a href="/" class="text-xl font-semibold">MyBrand</a>
+<header class="bg-white shadow px-4 md:px-6 py-4 
+                flex flex-col md:flex-row md:justify-between md:items-center gap-4">
 
-        {{-- Hamburger (mobile) --}}
-        <button id="nav-toggle" class="lg:hidden block text-gray-300 hover:text-white focus:outline-none">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+    {{-- Judul --}}
+    <div>
+        <h1 class="text-xl font-bold text-gray-900">
+            {{ $title ?? 'Dashboard Penduduk' }}
+        </h1>
+        <p class="text-gray-500 text-sm">
+            Selamat datang kembali, kelola semua aktivitas desa
+        </p>
+    </div>
+
+    {{-- Right area --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-end 
+                gap-4 md:gap-6 w-full md:w-auto">
+
+        {{-- Tombol Ajukan --}}
+        <button class="bg-blue-600 text-white px-4 py-2 rounded 
+                       flex items-center gap-2 hover:bg-blue-700 transition 
+                       w-full sm:w-auto justify-center">
+            <i class="fas fa-plus"></i>
+            <span>Ajukan Surat Baru</span>
         </button>
 
-        {{-- Menu --}}
-        <ul id="nav-menu" class="hidden lg:flex space-x-6 font-medium">
-            <li><a href="/" class="hover:text-gray-400">Home</a></li>
-            <li><a href="/about" class="hover:text-gray-400">About</a></li>
-            <li><a href="/contact" class="hover:text-gray-400">Contact</a></li>
-        </ul>
+        {{-- Notifikasi --}}
+        <button class="relative text-gray-700 hover:text-gray-900 
+                       w-full sm:w-auto flex justify-center items-center">
+            <div class="relative inline-block">
+                <i class="fas fa-bell text-lg"></i>
+
+                {{-- Badge menempel sempurna pada icon --}}
+                <span class="absolute -top-1 -right-1 w-2.5 h-2.5 
+                             bg-red-500 rounded-full border border-white"></span>
+            </div>
+        </button>
+
+        {{-- Profil --}}
+        <div class="flex items-center gap-3 
+                    w-full sm:w-auto justify-center sm:justify-start">
+                    
+                    
+            <img src="/images/pp.png" 
+                 class="w-10 h-10 rounded-full object-cover">
+
+            {{-- Info user muncul di layar > sm --}}
+            <div class="hidden sm:flex flex-col leading-tight">
+                <span class="font-medium text-gray-900">
+                    {{ $user->name ?? 'Penduduk' }}
+                </span>
+                <span class="text-sm text-gray-500">
+                    {{ $user->nik ?? '221293982843' }}
+                </span>
+            </div>
+        </div>
+
     </div>
-
-    {{-- Menu mobile dropdown --}}
-    <div id="nav-dropdown" class="lg:hidden hidden bg-gray-800 px-4 pb-4">
-        <a href="/" class="block py-2 hover:text-gray-400">Home</a>
-        <a href="/about" class="block py-2 hover:text-gray-400">About</a>
-        <a href="/contact" class="block py-2 hover:text-gray-400">Contact</a>
-    </div>
-</nav>
-
-<script>
-    const toggle = document.getElementById('nav-toggle');
-    const menu = document.getElementById('nav-menu');
-    const dropdown = document.getElementById('nav-dropdown');
-
-    toggle.addEventListener('click', () => {
-        menu.classList.toggle('hidden');
-        dropdown.classList.toggle('hidden');
-    });
-</script>
+</header>
