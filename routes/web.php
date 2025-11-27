@@ -1,92 +1,74 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SuratController;
 
 /*
 |--------------------------------------------------------------------------
-| AUTH (Login & Register)
+| HOME / ROOT
 |--------------------------------------------------------------------------
 */
-
-// Login page
-Route::get('/login', function () {
-    return view('auth.login', ['title' => 'Login']);
-})->name('login');
-
-// Login process (dummy)
-Route::post('/login', function (Request $request) {
-
-    $username = $request->username;
-    $password = $request->password;
-
-    // Admin
-    if ($username === 'admin' && $password === 'password') {
-        return redirect()->route('admin.dashboard');
-    }
-
-    // Penduduk
-    if ($username === 'penduduk' && $password === 'password') {
-        return redirect()->route('user.dashboard');
-    }
-
-    return back()->with('error', 'Username atau password salah!');
-})->name('login.process');
-
-// Register page
-Route::get('/register', function () {
-    return view('auth.register', ['title' => 'Register']);
-})->name('register');
-
-
-
-// LOGOUT
-Route::get('/logout', function () {
-    return redirect()->route('login')->with('error', 'Anda telah logout.');
-})->name('logout');
-
-/*
-|--------------------------------------------------------------------------
-| USER (Penduduk)
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', function () {
-    return redirect('/dashboard');
-});
-
-Route::get('/dashboard', function () {
-    return view('welcome', ['title' => 'Dashboard Penduduk']);
-})->name('user.dashboard');
-
-
-
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+    
+    return Auth::user()->role === 'pegawai' 
+        ? redirect()->route('admin.dashboard')
+        : redirect()->route('user.dashboard');
+})->name('home');
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN
+| AUTH ROUTES
 |--------------------------------------------------------------------------
 */
-
-Route::prefix('admin')->name('admin.')->group(function () {
-
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard', ['title' => 'Dashboard Admin']);
-    })->name('dashboard');
-
-    Route::get('/permohonan', function () {
-        return 'Data Permohonan';
-    })->name('permohonan');
-
-    Route::get('/surat', function () {
-        return 'Manajemen Surat';
-    })->name('surat');
-
-    Route::get('/rekap', function () {
-        return 'Rekap Laporan';
-    })->name('rekap');
-
-    Route::get('/pengaturan', function () {
-        return 'Pengaturan Akun';
-    })->name('pengaturan');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.process');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD USER (PENDUDUK)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:penduduk'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'penduduk'])
+        ->name('user.dashboard');
+
+    // Ajukan Surat
+    // Route::get('/surat/create', [SuratController::class, 'create'])->name('surat.create');
+    // Route::post('/surat/store', [SuratController::class, 'store'])->name('surat.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD ADMIN / PEGAWAI
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')
+    ->middleware(['auth', 'role:pegawai'])
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'admin'])
+            ->name('dashboard');
+
+        // Route::get('/permohonan', [SuratController::class, 'indexForPegawai'])
+        //     ->name('permohonan');
+        // Route::post('/surat/{surat}/approve', [SuratController::class, 'approve'])
+        //     ->name('surat.approve');
+        // Route::post('/surat/{surat}/selesai', [SuratController::class, 'markSelesai'])
+        //     ->name('surat.selesai');
+        // Route::post('/surat/{surat}/revisi', [SuratController::class, 'requestRevision'])
+        //     ->name('surat.revisi');
+    });

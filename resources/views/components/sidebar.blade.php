@@ -1,11 +1,13 @@
-<aside class="bg-white border-r border-gray-200 flex flex-col h-screen 
+<aside
+    class="bg-white border-r border-gray-200 flex flex-col h-screen 
             w-[70px] md:w-64 transition-all duration-200">
 
     {{-- Logo --}}
     <div class="flex items-center p-4">
-        
+
         {{-- Box Logo --}}
-        <div class="bg-blue-600 rounded-lg p-2 flex items-center justify-center 
+        <div
+            class="bg-blue-600 rounded-lg p-2 flex items-center justify-center 
                     w-12 h-12 mx-auto md:mx-0">
             <img src="/images/Logo.png" alt="Logo">
         </div>
@@ -33,7 +35,7 @@
 
         @foreach ($menus as $menu)
             <a href="{{ $menu['href'] }}"
-               class="flex items-center gap-4 px-3 py-2 rounded-md 
+                class="flex items-center gap-4 px-3 py-2 rounded-md 
                       text-[#4B5563] hover:bg-blue-50 hover:text-blue-700 
                       transition-colors duration-200">
 
@@ -50,22 +52,17 @@
 
     {{-- Logout --}}
     <div class="px-2 py-4 mt-auto">
-    <button onclick="confirmLogout()"
-        class="flex w-full items-center gap-4 px-3 py-2 rounded-md hover:bg-gray-100 
-               text-red-600 transition-colors duration-200">
+        <form action="{{ route('logout') }}" method="POST" class="w-full">
+            @csrf
+            <button type="submit" onclick="return confirm('Apakah Anda yakin ingin keluar?')"
+                class="flex w-full items-center gap-4 px-3 py-2 rounded-md hover:bg-gray-100 
+                           text-red-600 transition-colors duration-200">
 
-        <i class="fa fa-sign-out-alt w-5 text-lg mx-auto md:mx-0 text-red-600"></i>
+                <i class="fa fa-sign-out-alt text-lg w-5 mx-auto md:mx-0"></i>
 
-        <span class="hidden md:inline-flex">Logout</span>
-    </button>
-</div>
-
+                <span class="hidden md:inline-flex font-medium">Logout</span>
+            </button>
+        </form>
+    </div>
 
 </aside>
-<script>
-    function confirmLogout() {
-        if (confirm("Apakah Anda yakin ingin keluar?")) {
-            window.location.href = "{{ route('logout') }}";
-        }
-    }
-</script>
