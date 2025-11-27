@@ -81,9 +81,10 @@ class AuthController extends Controller
             $r->session()->regenerate();
 
             // Redirect berdasarkan role
-            $redirectRoute = auth()->user()->role === 'pegawai'
-                ? 'admin.dashboard'
-                : 'user.dashboard';
+            $redirectRoute = in_array(auth()->user()->role, ['admin', 'pegawai'])
+                        ? 'admin.dashboard'
+                        : 'user.dashboard';
+
 
             return redirect()->route($redirectRoute)
                 ->with('success', 'Selamat datang, ' . auth()->user()->nama . '!');

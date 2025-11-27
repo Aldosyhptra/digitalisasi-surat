@@ -57,7 +57,7 @@ Route::middleware(['auth', 'role:penduduk'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')
-    ->middleware(['auth', 'role:pegawai'])
+    ->middleware(['auth', 'role:pegawai,admin'])
     ->name('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'admin'])
@@ -71,4 +71,19 @@ Route::prefix('admin')
         //     ->name('surat.selesai');
         // Route::post('/surat/{surat}/revisi', [SuratController::class, 'requestRevision'])
         //     ->name('surat.revisi');
+        Route::get('/permohonan', function () {
+        return 'Data Permohonan';
+    })->name('permohonan');
+
+    Route::get('/surat', function () {
+        return 'Manajemen Surat';
+    })->name('surat');
+
+    Route::get('/rekap', function () {
+        return 'Rekap Laporan';
+    })->name('rekap');
+
+    Route::get('/pengaturan', function () {
+        return 'Pengaturan Akun';
+    })->name('pengaturan');
     });

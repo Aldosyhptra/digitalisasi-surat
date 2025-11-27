@@ -19,7 +19,7 @@ return new class extends Migration
         $table->string('nik', 20)->unique();
         $table->date('tanggal_lahir')->nullable();
         $table->string('no_wa', 20)->nullable();
-        $table->enum('role', ['penduduk','pegawai'])->default('penduduk');
+        $table->enum('role', ['penduduk','pegawai','admin'])->default('penduduk');
         $table->text('bio')->nullable();
         $table->rememberToken();
         $table->timestamps();
