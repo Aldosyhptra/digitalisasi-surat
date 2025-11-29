@@ -14,7 +14,7 @@
 
         {{-- Teks hanya tampil di md ke atas --}}
         <div class="hidden md:flex flex-col ml-3 mt-1 space-y-1">
-            <span class="font-bold text-gray-900 leading-none">Admin Portal</span>
+            <span class="font-bold text-gray-900 leading-none">User Portal</span>
             <span class="text-sm text-gray-400 leading-none">Desa Digital</span>
         </div>
     </div>
@@ -22,28 +22,34 @@
     <hr class="border-gray-200 my-2 hidden md:block">
 
     {{-- Menu --}}
-    <nav class="flex-1 px-2 py-4 flex flex-col gap-6">
-        @php
-            $menus = [
-                ['href' => '#', 'icon' => 'fa-home', 'text' => 'Dashboard'],
-                ['href' => '#', 'icon' => 'fa-file-alt', 'text' => 'Ajukan Surat'],
-                ['href' => '#', 'icon' => 'fa-clock', 'text' => 'Riwayat Pengajuan'],
-                ['href' => '#', 'icon' => 'fa-question-circle', 'text' => 'Bantuan / FAQ'],
-                ['href' => '#', 'icon' => 'fa-user', 'text' => 'Profil Saya'],
-            ];
-        @endphp
+    @php
+        $menus = [
+            ['href' => route('user.dashboard'), 'icon' => 'fa-home', 'text' => 'Dashboard'],
+            ['href' => route('pengajuan.surat'), 'icon' => 'fa-file-alt', 'text' => 'Ajukan Surat'],
+            ['href' => route('riwayat.pengajuan'), 'icon' => 'fa-clock', 'text' => 'Riwayat Pengajuan'],
+            ['href' => route('faq'), 'icon' => 'fa-question-circle', 'text' => 'Bantuan / FAQ'],
+            ['href' => route('profil.saya'), 'icon' => 'fa-user', 'text' => 'Profil Saya'],
+        ];
 
+        $currentRoute = Route::currentRouteName();
+    @endphp
+
+    <nav class="flex-1 px-2 py-4 flex flex-col gap-6">
         @foreach ($menus as $menu)
+            @php
+                $isActive = url()->current() === $menu['href'];
+            @endphp
+
             <a href="{{ $menu['href'] }}"
-                class="flex items-center gap-4 px-3 py-2 rounded-md 
-                      text-[#4B5563] hover:bg-blue-50 hover:text-blue-700 
+               class="flex items-center gap-4 px-3 py-2 rounded-md
+                      {{ $isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600' }}
                       transition-colors duration-200">
 
                 {{-- Ikon --}}
-                <i class="fa {{ $menu['icon'] }} w-5 text-lg mx-auto md:mx-0 text-[#4B5563]"></i>
+                <i class="fa {{ $menu['icon'] }} w-5 text-lg mx-auto md:mx-0"></i>
 
                 {{-- Teks --}}
-                <span class="font-medium hidden md:inline-flex text-[#4B5563]">
+                <span class="font-medium hidden md:inline-flex">
                     {{ $menu['text'] }}
                 </span>
             </a>

@@ -60,30 +60,47 @@ Route::prefix('admin')
     ->middleware(['auth', 'role:pegawai,admin'])
     ->name('admin.')
     ->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'admin'])
-            ->name('dashboard');
 
-        // Route::get('/permohonan', [SuratController::class, 'indexForPegawai'])
-        //     ->name('permohonan');
-        // Route::post('/surat/{surat}/approve', [SuratController::class, 'approve'])
-        //     ->name('surat.approve');
-        // Route::post('/surat/{surat}/selesai', [SuratController::class, 'markSelesai'])
-        //     ->name('surat.selesai');
-        // Route::post('/surat/{surat}/revisi', [SuratController::class, 'requestRevision'])
-        //     ->name('surat.revisi');
+        Route::get('/dashboard', function () {
+            return view('layouts.admin.admin_layout', ['title' => 'Dashboard Admin']);
+        })->name('dashboard');
+
         Route::get('/permohonan', function () {
-        return 'Data Permohonan';
-    })->name('permohonan');
+            return view('layouts.admin.permohonan', ['title' => 'Data Permohonan']);
+        })->name('permohonan');
 
-    Route::get('/surat', function () {
-        return 'Manajemen Surat';
-    })->name('surat');
+        Route::get('/surat', function () {
+            return view('layouts.admin.surat', ['title' => 'Manajemen Surat']);
+        })->name('surat');
 
-    Route::get('/rekap', function () {
-        return 'Rekap Laporan';
-    })->name('rekap');
+        Route::get('/rekap', function () {
+            return view('layouts.admin.rekap', ['title' => 'Rekap & Laporan']);
+        })->name('rekap');
 
-    Route::get('/pengaturan', function () {
-        return 'Pengaturan Akun';
-    })->name('pengaturan');
-    });
+        Route::get('/pengaturan', function () {
+            return view('layouts.admin.pengaturan', ['title' => 'Pengaturan Akun']);
+        })->name('pengaturan');
+});
+
+
+Route::middleware(['auth', 'role:penduduk'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('layouts.app', ['title' => 'Dashboard']);
+    })->name('user.dashboard');
+
+    Route::get('/ajukan-surat', function () {
+        return view('components.Pengguna.AjukanSurat.ajukan-surat', ['title' => 'Ajukan Surat']);
+    })->name('pengajuan.surat');
+
+    Route::get('/riwayat-pengajuan', function () {
+        return view('layouts.riwayat_pengajuan', ['title' => 'Riwayat Pengajuan']);
+    })->name('riwayat.pengajuan');
+
+    Route::get('/faq', function () {
+        return view('layouts.faq', ['title' => 'Bantuan / FAQ']);
+    })->name('faq');
+
+    Route::get('/profil-saya', function () {
+        return view('layouts.profil', ['title' => 'Profil Saya']);
+    })->name('profil.saya');
+});

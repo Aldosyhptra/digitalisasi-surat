@@ -27,18 +27,26 @@
             ['href' => route('admin.rekap'), 'icon' => 'fa-chart-bar', 'text' => 'Rekap & Laporan'],
             ['href' => route('admin.pengaturan'), 'icon' => 'fa-user-cog', 'text' => 'Pengaturan Akun'],
         ];
+
+        $currentRoute = Route::currentRouteName();
     @endphp
 
     <nav class="flex-1 px-2 py-4 flex flex-col gap-6">
         @foreach ($menus as $menu)
+            @php
+                // Cek apakah menu ini aktif berdasarkan route
+                $isActive = $currentRoute === \Route::currentRouteName() &&
+                            $menu['href'] === url()->current();
+            @endphp
+
             <a href="{{ $menu['href'] }}"
-                class="flex items-center gap-4 px-3 py-2 rounded-md 
-                      text-[#4B5563] hover:bg-blue-50 hover:text-blue-700 
+               class="flex items-center gap-4 px-3 py-2 rounded-md
+                      {{ $isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600' }}
                       transition-colors duration-200">
 
                 <i class="fa {{ $menu['icon'] }} text-lg w-5 mx-auto md:mx-0"></i>
 
-                <span class="hidden md:inline-flex font-medium">
+                <span class="hidden md:inline-flex">
                     {{ $menu['text'] }}
                 </span>
             </a>
