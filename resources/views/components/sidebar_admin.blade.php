@@ -1,6 +1,6 @@
 <aside
-    class="bg-white border-r border-gray-200 flex flex-col h-screen
-            w-[70px] md:w-64 transition-all duration-200">
+    class="bg-white border-r border-gray-200 flex flex-col min-h-screen
+           w-[70px] md:w-64 transition-all duration-200 overflow-y-auto">
 
     {{-- Logo --}}
     <div class="flex items-center p-4">
@@ -34,7 +34,6 @@
     <nav class="flex-1 px-2 py-4 flex flex-col gap-6">
         @foreach ($menus as $menu)
             @php
-                // Cek apakah menu ini aktif berdasarkan route
                 $isActive = $currentRoute === \Route::currentRouteName() &&
                             $menu['href'] === url()->current();
             @endphp
