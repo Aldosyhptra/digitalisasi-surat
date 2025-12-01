@@ -12,22 +12,24 @@
 
 <body class="bg-gray-50">
 
-    <div class="flex">
+    <div class="flex min-h-screen">
 
-    @include('components.sidebar_admin')
+        {{-- Sidebar --}}
+        @include('components.sidebar_admin')
 
-    <main class="flex-1">
-        @include('components.navbar_admin')
+        {{-- Main Content --}}
+        <main class="flex-1 min-h-screen overflow-x-hidden overflow-y-auto bg-gray-50">
+            {{-- Navbar --}}
+            @include('components.navbar_admin')
 
-        <div class="p-6">
-            @yield('content')
-            @include('components.Admin/Pengaturan/pengaturan')
-        </div>
-    </main>
-</div>
+            {{-- Page Content --}}
+            <div class="p-6">
+                @yield('content')
+                @include('components.Admin/Pengaturan/pengaturan')
+            </div>
+        </main>
 
+    </div>
 
 </body>
 </html>
-
-

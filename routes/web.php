@@ -62,7 +62,9 @@ Route::prefix('admin')
     ->group(function () {
 
         Route::get('/dashboard', function () {
-            return view('layouts.admin.admin_layout', ['title' => 'Dashboard Admin']);
+            return view('components.admin.dashboard.dashboard', [
+                'title' => 'Dashboard Admin'
+            ]);
         })->name('dashboard');
 
         Route::get('/permohonan', function () {
