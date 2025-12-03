@@ -13,13 +13,13 @@ return new class extends Migration
 {
     Schema::create('jenis_surat', function (Blueprint $table) {
         $table->id();
-        $table->string('nama_jenis');
-        $table->text('keterangan')->nullable();
-        $table->string('template_file')->nullable(); // path .docx dll
-        $table->string('kode')->nullable(); // kode singkat untuk nomor surat
+        $table->string('nama_surat');
+        $table->string('template_file')->nullable(); // file .docx template
+        $table->json('fields')->nullable(); // daftar placeholder yang digunakan
         $table->timestamps();
     });
 }
+
 
 
     /**
