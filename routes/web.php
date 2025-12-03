@@ -82,6 +82,14 @@ Route::prefix('admin')
         Route::get('/pengaturan', function () {
             return view('layouts.admin.pengaturan', ['title' => 'Pengaturan Akun']);
         })->name('pengaturan');
+
+        Route::post('/jenis-surat/{id}/upload-template', 
+        [SuratController::class, 'uploadTemplate']
+        )->name('admin.upload.template');
+
+        Route::get('/surat/{id}/generate', 
+            [SuratController::class, 'generateSurat']
+        )->name('admin.generate.surat');
 });
 
 
@@ -105,4 +113,7 @@ Route::middleware(['auth', 'role:penduduk'])->group(function () {
     Route::get('/profil-saya', function () {
         return view('layouts.profil', ['title' => 'Profil Saya']);
     })->name('profil.saya');
+
+    Route::post('/surat/store', [SuratController::class, 'store'])
+        ->name('surat.store');
 });
