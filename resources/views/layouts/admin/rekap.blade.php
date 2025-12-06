@@ -7,42 +7,48 @@
 
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
-    {{-- Include libraries --}}
+
+    {{-- Libraries --}}
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 min-h-screen flex">
 
-    <div class="flex min-h-screen">
+    <div class="flex w-full min-h-screen">
 
-        {{-- Sidebar --}}
+        {{-- SIDEBAR --}}
         @include('components.sidebar_admin')
 
-        <main class="flex-1 flex flex-col">
+        {{-- MAIN AREA --}}
+        <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
 
-            {{-- Navbar --}}
-            @include('components.navbar_admin')
+            {{-- NAVBAR --}}
+            <header class="sticky top-0 z-30 bg-white shadow">
+                @include('components.navbar_admin')
+            </header>
 
-            {{-- Main Content --}}
-            <div class="p-6 flex flex-col gap-6">
+            {{-- CONTENT --}}
+            <section class="p-4 md:p-6 flex flex-col gap-6">
 
-                {{-- Konten yang di-yield --}}
+                {{-- Halaman lain --}}
                 @yield('content')
 
-                {{-- Komponen Rekap Statistik --}}
-                <div class="mb-6">
-                    @include('components.Admin/Rekap/rekap_statistik')
+                {{-- Rekap Statistik --}}
+                <div class="w-full">
+                    @include('components.Admin.Rekap.rekap_statistik')
                 </div>
 
-                {{-- Komponen Rekap Filter & Download --}}
-                <div class="mb-6">
-                    @include('components.Admin/Rekap/rekap')
+                {{-- Rekap Filter & Download --}}
+                <div class="w-full">
+                    @include('components.Admin.Rekap.rekap')
                 </div>
 
-            </div>
+            </section>
+
         </main>
+
     </div>
 
 </body>

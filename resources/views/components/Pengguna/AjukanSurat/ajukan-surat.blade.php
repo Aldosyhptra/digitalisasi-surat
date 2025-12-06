@@ -4,29 +4,42 @@
 
 <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-    {{-- Search & Filter Card --}}
-    <div class="bg-white shadow-md rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
-        <input type="text" id="searchInput" placeholder="Cari surat..." 
-               class="flex-1 px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500">
-        <select id="filterSelect" class="px-4 py-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500">
-            <option value="">Semua Jenis Surat</option>
-            <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
-            <option value="Surat Pengantar SKCK">Surat Pengantar SKCK</option>
-            <option value="Surat Keterangan Usaha">Surat Keterangan Usaha</option>
-            <option value="Surat Izin Keramaian">Surat Izin Keramaian</option>
-            <option value="Surat Keterangan Tidak Mampu">Surat Keterangan Tidak Mampu</option>
-            <option value="Surat Izin Usaha Mikro">Surat Izin Usaha Mikro</option>
-            <option value="Surat Keterangan Sehat">Surat Keterangan Sehat</option>
-            <option value="Surat Pindah">Surat Pindah</option>
-            <option value="Surat Kelahiran">Surat Kelahiran</option>
-            <option value="Surat Kematian">Surat Kematian</option>
-            <option value="Surat Domisili Usaha">Surat Domisili Usaha</option>
-            <option value="Surat Pernyataan">Surat Pernyataan</option>
-        </select>
-    </div>
+   {{-- Search & Filter Card --}}
+<div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm
+            flex flex-col md:flex-row items-start md:items-center gap-4">
 
-    {{-- Card Grid 4x3 --}}
+    {{-- Search --}}
+    <input type="text" id="searchInput" placeholder="Cari surat..."
+        class="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm
+               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none
+               h-[48px]">
+
+    {{-- Filter --}}
+    <select id="filterSelect"
+        class="px-4 py-3 border border-gray-300 rounded-xl text-sm
+               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none
+               h-[48px]">
+        <option value="">Semua Jenis Surat</option>
+        <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
+        <option value="Surat Pengantar SKCK">Surat Pengantar SKCK</option>
+        <option value="Surat Keterangan Usaha">Surat Keterangan Usaha</option>
+        <option value="Surat Izin Keramaian">Surat Izin Keramaian</option>
+        <option value="Surat Keterangan Tidak Mampu">Surat Keterangan Tidak Mampu</option>
+        <option value="Surat Izin Usaha Mikro">Surat Izin Usaha Mikro</option>
+        <option value="Surat Keterangan Sehat">Surat Keterangan Sehat</option>
+        <option value="Surat Pindah">Surat Pindah</option>
+        <option value="Surat Kelahiran">Surat Kelahiran</option>
+        <option value="Surat Kematian">Surat Kematian</option>
+        <option value="Surat Domisili Usaha">Surat Domisili Usaha</option>
+        <option value="Surat Pernyataan">Surat Pernyataan</option>
+    </select>
+
+</div>
+
+
+    {{-- Cards --}}
     <div id="cardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
         @php
             $cards = [
                 ['title' => 'Surat Keterangan Domisili', 'desc' => 'Keterangan domisili', 'icon' => 'fa-home', 'color' => 'bg-blue-100 text-blue-700'],
@@ -62,15 +75,18 @@
             <p class="text-gray-500 text-sm mb-4">{{ $card['desc'] }}</p>
 
             {{-- Button --}}
-            <button class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            <a href="/pengguna/ajukan-surat/form_template?template={{ urlencode($card['title']) }}"
+                class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center block">
                 Pilih Template
-            </button>
+            </a>
+
         </div>
         @endforeach
     </div>
 
 </div>
 
+{{-- Search & Filter Script --}}
 <script>
     const searchInput = document.getElementById('searchInput');
     const filterSelect = document.getElementById('filterSelect');
@@ -85,11 +101,7 @@
             const matchesSearch = title.includes(searchTerm);
             const matchesFilter = !filterTerm || title === filterTerm;
 
-            if (matchesSearch && matchesFilter) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
+            card.style.display = (matchesSearch && matchesFilter) ? 'flex' : 'none';
         });
     }
 

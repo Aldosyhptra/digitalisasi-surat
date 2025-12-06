@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -11,24 +10,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 min-h-screen flex">
 
-    <div class="flex">
+    <!-- Wrapper -->
+    <div class="flex w-full min-h-screen">
 
-    @include('components.sidebar_admin')
+        {{-- Sidebar --}}
+        @include('components.sidebar_admin')
 
-    <main class="flex-1">
-        @include('components.navbar_admin')
+        {{-- MAIN --}}
+        <main class="flex-1 min-h-screen overflow-x-hidden">
 
-        <div class="p-6">
-            @yield('content')
-             @include('components.Admin.Permohonan.permohonan')
-        </div>
-    </main>
-</div>
+            {{-- Navbar --}}
+            <header class="sticky top-0 z-30 bg-white shadow-sm">
+                @include('components.navbar_admin')
+            </header>
 
+            {{-- Page Content --}}
+            <section class="p-4 md:p-6">
+                @yield('content')
+                @include('components.Admin.Permohonan.permohonan')
+            </section>
+
+        </main>
+
+    </div>
 
 </body>
 </html>
-
-

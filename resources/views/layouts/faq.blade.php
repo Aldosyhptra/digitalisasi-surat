@@ -21,15 +21,36 @@
         {{-- Navbar --}}
         @include('components.navbar')
 
-        {{-- Content Section --}}
+        {{-- ============================= --}}
+        {{--         CONTENT AREA          --}}
+        {{-- ============================= --}}
         <main class="flex-1 p-4 md:p-6 overflow-auto">
-            @yield('content')
-             @include('components.Pengguna.FAQ.steps')
-             @include('components.Pengguna.FAQ.faq')
-             @include('components.Pengguna.FAQ.support')
+
+            {{-- WRAPPER AGAR SEMUA KONTEN LEBARNYA SAMA --}}
+            <div class="max-w-5xl mx-auto text-left space-y-12">
+
+                {{-- YIELD CONTENT --}}
+                @yield('content')
+
+                {{-- STEPS SECTION --}}
+                <section>
+                    @include('components.Pengguna.FAQ.steps')
+                </section>
+
+                {{-- FAQ SECTION --}}
+                <section>
+                    @include('components.Pengguna.FAQ.faq')
+                </section>
+
+                {{-- SUPPORT SECTION --}}
+                <section>
+                    @include('components.Pengguna.FAQ.support')
+                </section>
+
+            </div>
 
         </main>
-        
+        {{-- ============================= --}}
 
         {{-- Footer --}}
         <footer class="bg-white shadow-inner py-4 text-center">
@@ -42,6 +63,3 @@
 
 </body>
 </html>
-
-
-

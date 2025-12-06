@@ -16,12 +16,13 @@
                 gap-4 md:gap-6 w-full md:w-auto">
 
         {{-- Tombol Ajukan --}}
-        <button class="bg-blue-600 text-white px-4 py-2 rounded 
-                       flex items-center gap-2 hover:bg-blue-700 transition 
-                       w-full sm:w-auto justify-center">
+        <a href="{{ route('pengajuan.surat') }}"
+            class="bg-blue-600 text-white px-4 py-2 rounded 
+                   flex items-center gap-2 hover:bg-blue-700 transition 
+                   w-full sm:w-auto justify-center">
             <i class="fas fa-plus"></i>
             <span>Ajukan Surat Baru</span>
-        </button>
+        </a>
 
         {{-- Notifikasi --}}
         <button class="relative text-gray-700 hover:text-gray-900 
@@ -36,12 +37,11 @@
         </button>
 
         {{-- Profil --}}
-        <div class="flex items-center gap-3 
-                    w-full sm:w-auto justify-center sm:justify-start">
-                    
-                    
-            <img src="/images/pp.png" 
-                 class="w-10 h-10 rounded-full object-cover">
+        <a href="{{ route('profil.saya') }}"
+           class="flex items-center gap-3 
+                  w-full sm:w-auto justify-center sm:justify-start">
+
+            <img src="/images/pp.png" class="w-10 h-10 rounded-full object-cover">
 
             {{-- Info user muncul di layar > sm --}}
             <div class="hidden sm:flex flex-col leading-tight">
@@ -52,7 +52,8 @@
                     {{ $user->nik ?? '221293982843' }}
                 </span>
             </div>
-        </div>
+
+        </a>
 
     </div>
 </header>
