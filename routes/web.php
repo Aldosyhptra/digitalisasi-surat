@@ -21,6 +21,7 @@ Route::get('/', function () {
         : redirect()->route('user.dashboard');
 })->name('home');
 
+
 /*
 |--------------------------------------------------------------------------
 | AUTH ROUTES
@@ -115,4 +116,3 @@ Route::get('/riwayat-pengajuan/detail/{no}', function($no) {
     Route::get('/profil-saya/edit', function () {
         return view('components.Pengguna.Profil.edit_profil', ['title' => 'Edit Profil']);
     })->name('profil.edit');
-    Route::post('/profil-saya/update', [ProfileController::class, 'update'])->name('profil.update');
