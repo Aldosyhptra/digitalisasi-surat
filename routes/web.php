@@ -106,3 +106,13 @@ Route::middleware(['auth', 'role:penduduk'])->group(function () {
         return view('layouts.profil', ['title' => 'Profil Saya']);
     })->name('profil.saya');
 });
+Route::get('/pengguna/ajukan-surat/form_template', function () {
+    return view('components.pengguna.ajukansurat.form_template');
+});
+Route::get('/riwayat-pengajuan/detail/{no}', function($no) {
+    return view('components.Pengguna.RiwayatPengajuan.detail_pengajuan', compact('no'));
+});
+    Route::get('/profil-saya/edit', function () {
+        return view('components.Pengguna.Profil.edit_profil', ['title' => 'Edit Profil']);
+    })->name('profil.edit');
+    Route::post('/profil-saya/update', [ProfileController::class, 'update'])->name('profil.update');
