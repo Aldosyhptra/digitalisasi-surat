@@ -82,6 +82,14 @@ Route::prefix('admin')
         Route::get('/pengaturan', function () {
             return view('layouts.admin.pengaturan', ['title' => 'Pengaturan Akun']);
         })->name('pengaturan');
+
+        Route::post('/jenis-surat/{id}/upload-template', 
+        [SuratController::class, 'uploadTemplate']
+        )->name('admin.upload.template');
+
+        Route::get('/surat/{id}/generate', 
+            [SuratController::class, 'generateSurat']
+        )->name('admin.generate.surat');
 });
 
 
@@ -116,3 +124,8 @@ Route::get('/riwayat-pengajuan/detail/{no}', function($no) {
         return view('components.Pengguna.Profil.edit_profil', ['title' => 'Edit Profil']);
     })->name('profil.edit');
     Route::post('/profil-saya/update', [ProfileController::class, 'update'])->name('profil.update');
+
+    Route::post('/surat/store', [SuratController::class, 'store'])
+        ->name('surat.store');
+});
+
