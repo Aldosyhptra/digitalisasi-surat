@@ -1,4 +1,7 @@
-{{-- resources/views/components/Pengguna/RiwayatPengajuan/riwayat.blade.php --}}
+
+
+{{-- CDN jsPDF --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 {{-- Card Filter & Search --}}
 <div class="bg-white p-6 w-full max-w-7xl mx-auto mb-6">
@@ -83,7 +86,21 @@
             <div class="rounded px-3 py-1 {{ $item['color'] }} text-white font-semibold text-center w-fit text-[12px] status">{{ $item['status'] }}</div>
             <div class="flex gap-3 actions">
                 @foreach($item['actions'] as $action)
-                    <a href="#" class="px-3 py-1 rounded font-semibold text-[14px] transition hover:bg-gray-200 {{ $action=='Download' ? 'text-green-600' : 'text-blue-600' }}">{{ $action }}</a>
+                    
+                    {{-- Jika action Lihat --}}
+                    @if($action == 'Lihat')
+                        <a href="/riwayat-pengajuan/detail/{{ $item['no'] }}"
+                        class="px-3 py-1 rounded font-semibold text-[14px] transition hover:bg-gray-200 text-blue-600">
+                        Lihat
+                        </a>
+                    {{-- Jika action Download --}}
+                    @elseif($action == 'Download')
+                        <button 
+                            onclick="downloadPDF('{{ $item['no'] }}', '{{ $item['jenis'] }}', '{{ $item['keperluan'] }}', '{{ $item['tanggal'] }}')"
+                            class="px-3 py-1 rounded font-semibold text-[14px] transition hover:bg-gray-200 text-green-600">
+                            Download
+                        </button>
+                    @endif
                 @endforeach
             </div>
         </div>
@@ -97,13 +114,12 @@
     <div class="flex gap-1" id="pagination-controls"></div>
 </div>
 
-{{-- Filter, Search & Pagination JS --}}
+{{-- Filter, Search, Pagination & Download PDF --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const filterStatus = document.getElementById('filter-status');
     const filterJenis = document.getElementById('filter-jenis-surat');
     const searchInput = document.getElementById('search');
-    const tableBody = document.getElementById('table-body');
     const rows = Array.from(document.querySelectorAll('.row-item'));
     const info = document.getElementById('pagination-info');
     const controls = document.getElementById('pagination-controls');
@@ -120,15 +136,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const status = row.querySelector('.status').textContent.toLowerCase();
             const jenis = row.querySelector('.jenis').textContent.toLowerCase();
             const keperluan = row.querySelector('.keperluan').textContent.toLowerCase();
-            return (status.includes(statusVal) || statusVal === '') &&
-                   (jenis.includes(jenisVal) || jenisVal === '') &&
-                   (keperluan.includes(searchVal) || searchVal === '');
+            return (
+                (status.includes(statusVal) || statusVal === '') &&
+                (jenis.includes(jenisVal) || jenisVal === '') &&
+                (keperluan.includes(searchVal) || searchVal === '')
+            );
         });
 
         const totalRows = filtered.length;
         const totalPages = Math.ceil(totalRows / rowsPerPage);
-        if(currentPage > totalPages) currentPage = 1;
-        const start = (currentPage-1)*rowsPerPage;
+        if (currentPage > totalPages) currentPage = 1;
+
+        const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
         rows.forEach(r => r.style.display = 'none');
@@ -138,37 +157,78 @@ document.addEventListener('DOMContentLoaded', function() {
         const endRow = end > totalRows ? totalRows : end;
         info.textContent = `Menampilkan ${startRow} hingga ${endRow} dari ${totalRows} hasil`;
 
-        // Render pagination buttons
         controls.innerHTML = '';
-        if(totalPages <= 1) return;
+        if (totalPages <= 1) return;
 
+        // Prev
         const prevBtn = document.createElement('button');
-        prevBtn.className = 'flex items-center justify-center w-8 h-8 border border-gray-300 rounded hover:bg-gray-100';
-        prevBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>`;
+        prevBtn.className =
+            'flex items-center justify-center w-8 h-8 border border-gray-300 rounded hover:bg-gray-100';
+        prevBtn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>`;
         prevBtn.disabled = currentPage === 1;
         prevBtn.addEventListener('click', () => { currentPage--; renderTable(); });
         controls.appendChild(prevBtn);
 
-        for(let i=1; i<=totalPages; i++){
+        // Pages
+        for (let i = 1; i <= totalPages; i++) {
             const btn = document.createElement('button');
-            btn.className = `flex items-center justify-center w-8 h-8 border ${i===currentPage?'border-blue-500 bg-blue-500 text-white':'border-gray-300 text-gray-700 hover:bg-gray-100'} rounded font-semibold`;
+            btn.className =
+                `flex items-center justify-center w-8 h-8 border ${
+                    i === currentPage
+                        ? 'border-blue-500 bg-blue-500 text-white'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                } rounded font-semibold`;
             btn.textContent = i;
-            btn.addEventListener('click', ()=> { currentPage=i; renderTable(); });
+            btn.addEventListener('click', () => { currentPage = i; renderTable(); });
             controls.appendChild(btn);
         }
 
+        // Next
         const nextBtn = document.createElement('button');
-        nextBtn.className = 'flex items-center justify-center w-8 h-8 border border-gray-300 rounded hover:bg-gray-100';
-        nextBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>`;
+        nextBtn.className =
+            'flex items-center justify-center w-8 h-8 border border-gray-300 rounded hover:bg-gray-100';
+        nextBtn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>`;
         nextBtn.disabled = currentPage === totalPages;
         nextBtn.addEventListener('click', () => { currentPage++; renderTable(); });
         controls.appendChild(nextBtn);
     }
 
-    filterStatus.addEventListener('change', () => { currentPage=1; renderTable(); });
-    filterJenis.addEventListener('change', () => { currentPage=1; renderTable(); });
-    searchInput.addEventListener('input', () => { currentPage=1; renderTable(); });
+    filterStatus.addEventListener('change', () => { currentPage = 1; renderTable(); });
+    filterJenis.addEventListener('change', () => { currentPage = 1; renderTable(); });
+    searchInput.addEventListener('input', () => { currentPage = 1; renderTable(); });
 
     renderTable();
 });
+
+// =====================
+//     DOWNLOAD PDF
+// =====================
+async function downloadPDF(no, jenis, keperluan, tanggal) {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    pdf.setFont("Helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text("Dokumen Surat", 20, 20);
+
+    pdf.setFont("Helvetica", "normal");
+    pdf.setFontSize(12);
+
+    pdf.text(`Nomor Surat      : ${no}`, 20, 40);
+    pdf.text(`Jenis Surat      : ${jenis}`, 20, 50);
+    pdf.text(`Keperluan        : ${keperluan}`, 20, 60);
+    pdf.text(`Tanggal Dibuat   : ${tanggal}`, 20, 70);
+
+    pdf.line(20, 75, 190, 75);
+
+    pdf.text("Dokumen ini dihasilkan otomatis dari Riwayat Pengajuan.", 20, 90);
+
+    pdf.save(`SURAT-${no}.pdf`);
+}
 </script>

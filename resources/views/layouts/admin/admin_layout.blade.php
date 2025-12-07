@@ -5,34 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Digitalisasi Surat' }}</title>
 
-    {{-- Tailwind CSS --}}
     @vite('resources/css/app.css')
 
-    {{-- Font Awesome --}}
     <link rel="stylesheet" 
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 
-<body class="bg-gray-50">
+<body class="bg-gray-50 min-h-screen">
 
-    <div class="flex">
+    <div class="flex min-h-screen">
 
+        {{-- SIDEBAR --}}
         @include('components.sidebar_admin')
 
-        <main class="flex-1">
+        {{-- MAIN CONTENT --}}
+        <main class="flex-1 min-h-screen overflow-x-hidden">
+
+            {{-- NAVBAR --}}
             @include('components.navbar_admin')
 
-            <div class="p-6 space-y-6">
-                {{-- HALAMAN UTAMA --}}
+            {{-- PAGE WRAPPER --}}
+            <div class="p-4 sm:p-6 space-y-6">
+
+                {{-- CONTENT --}}
                 @yield('content')
 
                 {{-- STATISTIK ADMIN --}}
-                @include('components.admin.dashboard.statistik')
-
-                @include('components.admin.dashboard.datapemohon')
+                <div class="space-y-6">
+                    @include('components.admin.dashboard.statistik')
+                    @include('components.admin.dashboard.datapemohon')
+                </div>
 
             </div>
-
         </main>
 
     </div>

@@ -3,11 +3,13 @@
     <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">Informasi Profile</h2>
 
-        <button class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium 
-                       hover:bg-blue-700 transition-colors shadow-md">
-            <i class="fa-solid fa-pen mr-2"></i>
-            Edit Profile
-        </button>
+        <button onclick="window.location='{{ route('profil.edit') }}'"
+        class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium 
+               hover:bg-blue-700 transition-colors shadow-md">
+    <i class="fa-solid fa-pen mr-2"></i>
+    Edit Profile
+</button>
+
     </div>
 
     {{-- Data Pribadi --}}
