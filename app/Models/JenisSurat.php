@@ -14,6 +14,9 @@ class JenisSurat extends Model
         'template_file',
         'kode'
     ];
+    protected $casts = [
+        'fields' => 'array',
+    ];
 
     public function surat()
     {

@@ -20,42 +20,46 @@ class AuthController extends Controller
     }
 
     public function register(Request $r)
-    {
-        $r->validate([
-            'nama' => 'required|string|max:255',
-            'username' => 'required|string|unique:users|max:255',
-            'password' => 'required|string|min:6|confirmed',
-            'nik' => 'required|string|unique:users|digits:16',
-            'tanggal_lahir' => 'required|date|before:today',
-            'no_wa' => 'required|string|regex:/^[0-9]{10,15}$/'
-        ], [
-            'nik.digits' => 'NIK harus 16 digit',
-            'no_wa.regex' => 'Nomor WhatsApp tidak valid',
-            'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini',
-            'password.confirmed' => 'Konfirmasi password tidak cocok'
+{
+    $r->validate([
+        'nama' => 'required|string|max:255',
+        'username' => 'required|string|unique:users|max:255',
+        'email' => 'required|email|unique:users|max:255',
+        'password' => 'required|string|min:6|confirmed',
+
+        'nik' => 'required|string|unique:users|digits:16',
+        'tanggal_lahir' => 'required|date|before:today',
+        'jenis_kelamin' => 'required|in:L,P',
+        'alamat' => 'required|string|max:255',
+        'no_wa' => 'required|string|regex:/^[0-9]{10,15}$/'
+    ]);
+
+    try {
+        User::create([
+            'nama' => $r->nama,
+            'username' => $r->username,
+            'email' => $r->email,
+            'password' => Hash::make($r->password),
+
+            'nik' => $r->nik,
+            'tanggal_lahir' => $r->tanggal_lahir,
+            'jenis_kelamin' => $r->jenis_kelamin,
+            'alamat' => $r->alamat,
+            'no_wa' => $r->no_wa,
+
+            'role' => 'penduduk',
         ]);
 
-        try {
-            $user = User::create([
-                'nama' => $r->nama,
-                'username' => $r->username,
-                'password' => Hash::make($r->password),
-                'nik' => $r->nik,
-                'tanggal_lahir' => $r->tanggal_lahir,
-                'no_wa' => $r->no_wa,
-                'role' => 'penduduk'
-            ]);
-
-            // Redirect ke login dengan pesan sukses
-            return redirect()->route('login')
-                ->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
+        return redirect()->route('login')
+            ->with('success', 'Registrasi berhasil! Silakan login.');
                 
-        } catch (\Exception $e) {
-            return back()
-                ->withInput($r->except('password', 'password_confirmation'))
-                ->with('error', 'Terjadi kesalahan saat registrasi. Silakan coba lagi.');
-        }
+    } catch (\Exception $e) {
+        return back()
+            ->withInput($r->except('password', 'password_confirmation'))
+            ->with('error', 'Terjadi kesalahan. Coba lagi.');
     }
+}
+
 
     public function login(Request $r)
     {

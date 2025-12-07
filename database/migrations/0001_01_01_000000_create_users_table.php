@@ -15,16 +15,24 @@ return new class extends Migration
         $table->id();
         $table->string('nama');
         $table->string('username')->unique();
+        $table->string('email')->unique();
         $table->string('password');
+
         $table->string('nik', 20)->unique();
         $table->date('tanggal_lahir')->nullable();
+        $table->string('jenis_kelamin')->nullable(); 
+        $table->text('alamat')->nullable(); 
+        $table->string('foto')->nullable(); 
+
         $table->string('no_wa', 20)->nullable();
         $table->enum('role', ['penduduk','pegawai','admin'])->default('penduduk');
         $table->text('bio')->nullable();
+
         $table->rememberToken();
         $table->timestamps();
     });
 }
+
 
 
     /**

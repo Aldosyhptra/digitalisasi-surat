@@ -12,9 +12,13 @@ class User extends Authenticatable
     protected $fillable = [
         'nama',
         'username',
+        'email',
         'password',
         'nik',
         'tanggal_lahir',
+        'jenis_kelamin',
+        'alamat',
+        'foto',
         'no_wa',
         'role',
         'bio'
@@ -30,3 +34,4 @@ class User extends Authenticatable
         return $this->hasMany(Surat::class);
     }
 }
+
