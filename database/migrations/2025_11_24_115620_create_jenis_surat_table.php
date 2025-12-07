@@ -6,27 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
-{
-    Schema::create('jenis_surat', function (Blueprint $table) {
-        $table->id();
-        $table->string('nama_surat');
-        $table->string('template_file')->nullable(); // file .docx template
-        $table->json('fields')->nullable(); // daftar placeholder yang digunakan
-        $table->timestamps();
-    });
-}
-
-
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
     {
-        Schema::dropIfExists('jenis_surat');
+        Schema::create('jenis_surats', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama_surat');
+            $table->string('jenis')->nullable(); 
+            $table->text('deskripsi')->nullable();
+            $table->string('template_file')->nullable(); 
+            $table->json('fields')->nullable(); 
+            $table->boolean('is_active')->default(true); 
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('jenis_surats');
     }
 };

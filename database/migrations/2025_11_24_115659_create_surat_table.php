@@ -6,34 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
-{
-    Schema::create('surat', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-        $table->foreignId('jenis_surat_id')->constrained('jenis_surat')->onDelete('cascade');
-        $table->string('no_surat')->nullable();
-        $table->text('keperluan')->nullable();
-        $table->string('file_surat')->nullable();
-        $table->enum('status', ['pending','revisi','disetujui','selesai'])->default('pending');
-        $table->text('catatan_verifikasi')->nullable();
-        $table->timestamp('tanggal_diajukan')->useCurrent();
-        $table->timestamp('tanggal_disetujui')->nullable();
-        $table->timestamp('tanggal_selesai')->nullable();
-        $table->boolean('wa_notified')->default(false);
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('surats', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('jenis_surat_id')->constrained('jenis_surats')->onDelete('cascade'); // ✅ Tambah nama tabel
+            $table->json('data_surat'); // ✅ Data field yang diisi user (dinamis)
+            $table->string('file_surat')->nullable(); // File hasil generate
+            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->text('catatan')->nullable(); // Catatan admin jika ditolak
+            $table->timestamp('tanggal_disetujui')->nullable();
+            $table->timestamps();
+        });
+    }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('surat');
+        Schema::dropIfExists('surats'); // ✅ Perbaiki dari 'surat' jadi 'surats'
     }
 };

@@ -101,18 +101,32 @@ Route::prefix('admin')
     ->group(function () {
 
         Route::get('/dashboard', function () {
-            return view('components.admin.dashboard.dashboard', [
-                'title' => 'Dashboard Admin'
-            ]);
+            return view('components.admin.dashboard.dashboard', ['title' => 'Dashboard Admin']);
         })->name('dashboard');
+
+        // ✅ Tampilkan semua surat
+        Route::get('/surat', [SuratController::class, 'showAllSurat'])->name('surat');
+
+        Route::post('/jenis-surat/store', [SuratController::class, 'storeJenisSurat'])->name('jenis_surat.store');
+
+        // ✅ Form upload template
+        Route::get('/surat/upload_surat', [SuratController::class, 'showUploadForm'])->name('surat.upload_form');
+
+        // ✅ Proses upload
+        Route::post('/surat/upload', [SuratController::class, 'upload'])->name('surat.upload');
+
+        // ✅ Update template
+        Route::put('/surat/update/{id}', [SuratController::class, 'update'])->name('surat.update');
+
+        // ✅ Hapus template
+        Route::delete('/surat/hapus/{id}', [SuratController::class, 'hapus'])->name('surat.hapus');
+
+        // ✅ Generate surat
+        Route::post('/surat/generate/{id}', [SuratController::class, 'generate'])->name('surat.generate');
 
         Route::get('/permohonan', function () {
             return view('layouts.admin.permohonan', ['title' => 'Data Permohonan']);
         })->name('permohonan');
-
-        Route::get('/surat', function () {
-            return view('layouts.admin.surat', ['title' => 'Manajemen Surat']);
-        })->name('surat');
 
         Route::get('/rekap', function () {
             return view('layouts.admin.rekap', ['title' => 'Rekap & Laporan']);
@@ -121,12 +135,4 @@ Route::prefix('admin')
         Route::get('/pengaturan', function () {
             return view('layouts.admin.pengaturan', ['title' => 'Pengaturan Akun']);
         })->name('pengaturan');
-
-        Route::post('/jenis-surat/{id}/upload-template',
-            [SuratController::class, 'uploadTemplate']
-        )->name('upload.template');
-
-        Route::get('/surat/{id}/generate',
-            [SuratController::class, 'generateSurat']
-        )->name('generate.surat');
     });
