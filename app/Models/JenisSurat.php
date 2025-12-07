@@ -2,24 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JenisSurat extends Model
 {
-    protected $table = 'jenis_surat';
+    use HasFactory;
+
+    protected $table = 'jenis_surats';
 
     protected $fillable = [
-        'nama_jenis',
-        'keterangan',
+        'nama_surat',
+        'jenis', 
+        'deskripsi',
         'template_file',
-        'kode'
-    ];
-    protected $casts = [
-        'fields' => 'array',
+        'fields',
+        'is_active',
     ];
 
-    public function surat()
-    {
-        return $this->hasMany(Surat::class);
-    }
+    protected $casts = [
+        'fields' => 'array',
+        'is_active' => 'boolean',
+    ];
 }
