@@ -48,14 +48,6 @@ Route::middleware(['auth', 'role:penduduk'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'penduduk'])
         ->name('user.dashboard');
 
-    Route::get('/ajukan-surat', function () {
-        return view('components.Pengguna.AjukanSurat.ajukan-surat', ['title' => 'Ajukan Surat']);
-    })->name('pengajuan.surat');
-
-    Route::get('/riwayat-pengajuan', function () {
-        return view('layouts.riwayat_pengajuan', ['title' => 'Riwayat Pengajuan']);
-    })->name('riwayat.pengajuan');
-
     Route::get('/faq', function () {
         return view('layouts.faq', ['title' => 'Bantuan / FAQ']);
     })->name('faq');
@@ -73,21 +65,37 @@ Route::middleware(['auth', 'role:penduduk'])->group(function () {
 
     Route::post('/surat/store', [SuratController::class, 'store'])
         ->name('surat.store');
-});
 
-/*
-|--------------------------------------------------------------------------
-| PENDUDUK - ROUTE BEBAS (TANPA NAME)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'role:penduduk'])->group(function () {
-    Route::get('/pengguna/ajukan-surat/form_template', function () {
-        return view('components.pengguna.ajukansurat.form_template');
-    });
+    // 1. Halaman Pilih Jenis Surat
+    Route::get('/ajukan-surat', [SuratController::class, 'pilihSurat'])
+        ->name('pengajuan.surat');
+    
+    // 2. Form Pengajuan Surat (dinamis)
+    Route::get('/ajukan-surat/form/{id}', [SuratController::class, 'formAjukan'])
+        ->name('ajukan-surat.form');
+    
+    // 3. Submit Pengajuan
+    Route::post('/ajukan-surat/submit', [SuratController::class, 'submitAjukan'])
+        ->name('ajukan-surat.submit');
 
-    Route::get('/riwayat-pengajuan/detail/{no}', function ($no) {
-        return view('components.Pengguna.RiwayatPengajuan.detail_pengajuan', compact('no'));
-    });
+    Route::get('/surat/{id}/preview', [SuratController::class, 'previewSurat'])
+        ->name('surat.preview');
+    
+    // 4. Riwayat Pengajuan (List)
+    Route::get('/riwayat-pengajuan', [SuratController::class, 'riwayatSurat'])
+        ->name('riwayat.pengajuan');
+    
+    // 5. Detail Pengajuan
+    Route::get('/riwayat-pengajuan/detail/{id}', [SuratController::class, 'detailSurat'])
+        ->name('riwayat-pengajuan.detail');
+    
+    // 6. Download Surat (yang sudah disetujui)
+    Route::get('/surat/download/{id}', [SuratController::class, 'downloadSurat'])
+        ->name('surat.download');
+
+    // Store surat (jika ada kebutuhan tambahan)
+    Route::post('/surat/store', [SuratController::class, 'store'])
+        ->name('surat.store');
 });
 
 /*
@@ -104,29 +112,28 @@ Route::prefix('admin')
             return view('components.admin.dashboard.dashboard', ['title' => 'Dashboard Admin']);
         })->name('dashboard');
 
-        // ✅ Tampilkan semua surat
+        // Tampilkan semua surat
         Route::get('/surat', [SuratController::class, 'showAllSurat'])->name('surat');
 
         Route::post('/jenis-surat/store', [SuratController::class, 'storeJenisSurat'])->name('jenis_surat.store');
 
-        // ✅ Form upload template
+        // Form upload template
         Route::get('/surat/upload_surat', [SuratController::class, 'showUploadForm'])->name('surat.upload_form');
 
-        // ✅ Proses upload
+        // Proses upload
         Route::post('/surat/upload', [SuratController::class, 'upload'])->name('surat.upload');
 
-        // ✅ Update template
+        // Update template
         Route::put('/surat/update/{id}', [SuratController::class, 'update'])->name('surat.update');
 
-        // ✅ Hapus template
+        // Hapus template
         Route::delete('/surat/hapus/{id}', [SuratController::class, 'hapus'])->name('surat.hapus');
 
-        // ✅ Generate surat
+        // Generate surat
         Route::post('/surat/generate/{id}', [SuratController::class, 'generate'])->name('surat.generate');
 
-        Route::get('/permohonan', function () {
-            return view('layouts.admin.permohonan', ['title' => 'Data Permohonan']);
-        })->name('permohonan');
+        Route::get('/permohonan', [SuratController::class, 'permohonanSuratPengguna'])
+        ->name('permohonan');   
 
         Route::get('/rekap', function () {
             return view('layouts.admin.rekap', ['title' => 'Rekap & Laporan']);
@@ -135,4 +142,10 @@ Route::prefix('admin')
         Route::get('/pengaturan', function () {
             return view('layouts.admin.pengaturan', ['title' => 'Pengaturan Akun']);
         })->name('pengaturan');
+
+        Route::get('/riwayat-pengajuan/detail/{id}', 
+            [SuratController::class, 'detailSurat']
+        )->name('riwayat-pengajuan.detail');
     });
+
+    
