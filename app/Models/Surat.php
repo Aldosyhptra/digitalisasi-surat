@@ -2,41 +2,39 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Surat extends Model
 {
-    protected $table = 'surat';
+    use HasFactory;
+
+    protected $table = 'surats';
 
     protected $fillable = [
         'user_id',
         'jenis_surat_id',
-        'no_surat',
-        'keperluan',
+        'data_surat',
         'file_surat',
         'status',
-        'catatan_verifikasi',
-        'tanggal_diajukan',
+        'catatan',
         'tanggal_disetujui',
-        'tanggal_selesai',
-        'wa_notified'
     ];
 
+    protected $casts = [
+        'data_surat' => 'array',
+        'tanggal_disetujui' => 'datetime',
+    ];
+
+    // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function jenis()
+    // Relasi ke JenisSurat
+    public function jenisSurat()
     {
-        return $this->belongsTo(JenisSurat::class, 'jenis_surat_id');
-    }
-
-    public static function generateNoSurat($jenis)
-    {
-        $bulan = date('m');
-        $tahun = date('Y');
-
-        return $jenis->kode . "/" . uniqid() . "/{$bulan}/{$tahun}";
+        return $this->belongsTo(JenisSurat::class);
     }
 }

@@ -306,4 +306,250 @@ class SuratController extends Controller
         ], 500);
     }
 }
+
+public function permohonanSuratPengguna()
+{
+    $rows = Surat::with(['jenisSurat', 'user'])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($item) {
+            return (object) [
+                'id'        => $item->id,
+                'nama'      => $item->user->nama ?? '-',
+                'nik'       => $item->user->nik ?? '-',
+                'jenis'     => $item->jenisSurat->nama_surat ?? '-',
+                'keperluan' => $item->catatan ?? '-',  
+                'status'    => ucfirst($item->status ?? 'Pending'),
+                'tanggal'   => $item->created_at,
+                'file'      => $item->file_surat ?? null,
+            ];
+        });
+
+    return view('layouts.admin.permohonan', [
+        'title' => 'Data Permohonan',
+        'rows'  => $rows
+    ]);
+}
+
+
+/**
+     * ============================================
+     * USER/PENGGUNA METHODS
+     * ============================================
+     */
+
+    /**
+     * Halaman pilih jenis surat untuk warga
+     */
+    public function pilihSurat()
+    {
+        $jenisSuratList = JenisSurat::whereNotNull('template_file')
+                                     ->whereNotNull('fields')
+                                     ->where('is_active', true)
+                                     ->orderBy('nama_surat', 'asc')
+                                     ->get();
+
+        return view('components.pengguna.ajukansurat.ajukan-surat', [
+            'jenisSuratList' => $jenisSuratList,
+            'title' => 'Ajukan Surat'
+        ]);
+    }
+
+    /**
+     * Form pengajuan surat berdasarkan jenis
+     */
+    public function formAjukan($id)
+    {
+        $jenisSurat = JenisSurat::findOrFail($id);
+
+        // Validasi template tersedia
+        if (!$jenisSurat->template_file || !$jenisSurat->fields) {
+            return redirect()
+                ->route('pengajuan.surat')
+                ->with('error', 'Template surat belum tersedia. Silakan pilih jenis surat lain.');
+        }
+
+        return view('components.pengguna.ajukansurat.form_template', [
+            'jenisSurat' => $jenisSurat,
+            'title' => 'Ajukan ' . $jenisSurat->nama_surat
+        ]);
+    }
+
+    /**
+     * Proses pengajuan surat dari warga
+     */
+    public function submitAjukan(Request $request)
+{
+    try {
+        $jenisSurat = JenisSurat::findOrFail($request->jenis_surat_id);
+
+        // Validasi
+        $rules = [
+            'jenis_surat_id' => 'required|exists:jenis_surats,id',
+            'catatan' => 'nullable|string|max:500'
+        ];
+
+        foreach ($jenisSurat->fields as $field) {
+            if (!empty($field['required'])) {
+                $rules["data_surat.{$field['name']}"] = 'required';
+            }
+        }
+
+        $validated = $request->validate($rules);
+
+        $surat = Surat::create([
+            'user_id' => auth()->id(),
+            'jenis_surat_id' => $request->jenis_surat_id,
+            'data_surat' => $request->data_surat,
+            'catatan' => $request->catatan,
+            'status' => 'pending',
+        ]);
+
+        // Pastikan folder generated ada
+        $generatedDir = storage_path('app/private/generated');
+        if (!file_exists($generatedDir)) mkdir($generatedDir, 0777, true);
+
+        // Path template
+        $templatePath = storage_path("app/private/{$jenisSurat->template_file}");
+        if (!file_exists($templatePath)) {
+            \Log::error('Template path not found: ' . $templatePath);
+            throw new \Exception("Template tidak ditemukan");
+        }
+
+        // Load template DOCX
+        $template = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+
+        // Replace variable ${...}
+        foreach ($request->data_surat as $key => $val) {
+            $template->setValue($key, $val ?? '');
+        }
+
+        // Simpan DOCX sementara
+        $docxPath = $generatedDir . "/surat-{$surat->id}.docx";
+        $template->saveAs($docxPath);
+
+        // Konversi ke PDF
+        \PhpOffice\PhpWord\Settings::setPdfRenderer(
+            \PhpOffice\PhpWord\Settings::PDF_RENDERER_DOMPDF,
+            base_path('vendor/dompdf/dompdf')
+        );
+
+        $phpWord = \PhpOffice\PhpWord\IOFactory::load($docxPath);
+        $pdfPath = $generatedDir . "/surat-{$surat->id}.pdf";
+        $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
+        $pdfWriter->save($pdfPath);
+
+        // Update database
+        $surat->update([
+            'file_surat' => "private/generated/surat-{$surat->id}.pdf"
+        ]);
+
+        return redirect()
+            ->route('riwayat-pengajuan.detail', $surat->id)
+            ->with('success', 'Pengajuan berhasil! File PDF berhasil dibuat.');
+
+    } catch (\Exception $e) {
+        \Log::error('Error submit surat: ' . $e->getMessage());
+        return back()
+            ->with('error', 'Gagal mengajukan surat: ' . $e->getMessage());
+    }
+}
+
+public function previewSurat($id)
+{
+    $surat = Surat::findOrFail($id);
+    $path = storage_path("app/{$surat->file_surat}");
+
+    if (!file_exists($path)) {
+        abort(404, 'File PDF tidak ditemukan.');
+    }
+
+    // Harus inline agar PDF.js bisa load
+    return response()->file($path, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="surat-' . $surat->id . '.pdf"',
+    ]);
+}
+
+
+    /**
+     * Detail pengajuan surat
+     */
+    public function detailSurat($id)
+{
+    $query = Surat::with('jenisSurat');
+
+    // Jika penduduk → hanya bisa lihat surat miliknya
+    if (auth()->user()->role === 'penduduk') {
+        $query->where('user_id', auth()->id());
+    }
+
+    $surat = $query->findOrFail($id);
+
+    return view(
+        auth()->user()->role === 'penduduk'
+            ? 'components.pengguna.riwayatpengajuan.detail_pengajuan'
+            : 'components.admin.surat.detail_pengajuan', 
+        [
+            'surat' => $surat,
+            'title' => 'Detail Pengajuan'
+        ]
+    );
+}
+
+
+    /**
+     * Download surat yang sudah disetujui
+     */
+    public function downloadSurat($id)
+    {
+        $surat = Surat::where('user_id', auth()->id())
+                      ->where('id', $id)
+                      ->firstOrFail();
+
+        if ($surat->status !== 'disetujui' || !$surat->file_surat) {
+            return back()->with('error', 'Surat belum bisa didownload.');
+        }
+
+        if (!Storage::exists($surat->file_surat)) {
+            return back()->with('error', 'File surat tidak ditemukan.');
+        }
+
+        return response()->download(storage_path('app/' . $surat->file_surat));
+    }
+
+    /**
+     * Riwayat pengajuan surat user
+     */
+    public function riwayatSurat()
+    {
+        $userId = auth()->id();
+
+        // Ambil semua pengajuan milik user, load relasi jenisSurat
+        $suratList = Surat::with('jenisSurat')
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            // map agar blade lebih sederhana: pastikan tetap instanceof Collection
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    // ambil nama surat dari relasi; fallback '-'
+                    'jenis' => $item->jenisSurat->nama_surat ?? '-',
+                    // keperluan diambil dari kolom catatan (boleh kosong)
+                    'keperluan' => $item->catatan ?? '-',
+                    'tanggal' => $item->created_at,
+                    'status' => ucfirst($item->status ?? 'pending'),
+                    // sisipan file_surat jika diperlukan pada view
+                    'file_surat' => $item->file_surat ?? null,
+                ];
+            });
+
+        // Gunakan view yang sudah kamu pakai sebelumnya
+        return view('components.Pengguna.RiwayatPengajuan.riwayat', [
+            'suratList' => $suratList,
+            'title' => 'Riwayat Pengajuan Surat'
+        ]);
+    }
+
 }

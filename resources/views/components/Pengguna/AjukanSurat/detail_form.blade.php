@@ -2,140 +2,254 @@
 
 @section('content')
 
-@php
-    $data = $data ?? request()->all();
-@endphp
-
-<div class="w-full px-6 py-10">
-
-    {{-- Back --}}
-    <a href="{{ url()->previous() }}"
-        class="inline-flex items-center text-gray-600 hover:text-blue-800 mb-6 text-sm md:text-base">
-        <span class="text-xl mr-2">←</span> Kembali
-    </a>
-
-    {{-- SURAT WRAPPER --}}
-    <div class="bg-white shadow-md rounded-2xl p-8 md:p-12 w-full max-w-5xl mx-auto border border-gray-200 space-y-6">
+    <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
 
         {{-- Header --}}
-        <div class="text-center mb-6 leading-tight">
-            <h1 class="text-2xl font-bold tracking-wide">Nama Template Surat</h1>
-
-            <p class="text-xs font-semibold mt-2">PEMERINTAH KOTA</p>
-            <p class="text-xs font-semibold">KELURAHAN EXAMPLE</p>
-
-            <h2 class="text-lg md:text-xl font-bold mt-4 tracking-wide">PENGANTAR SKCK</h2>
-            <p class="text-[13px] text-gray-600">No: [Akan diisi oleh admin]</p>
-
-            <hr class="mt-4 border-gray-300">
-        </div>
-
-        {{-- Pembuka --}}
-        <p class="text-[15px] leading-relaxed">
-            Yang bertanda tangan di bawah ini Lurah Example, menerangkan bahwa:
-        </p>
-
-        {{-- DATA PRIBADI --}}
-        <div class="space-y-2 text-[15px] leading-relaxed mt-4">
-            <p><span class="font-semibold">Nama Lengkap:</span> {{ $data['nama_lengkap'] ?? 'Budi Santoso' }}</p>
-            <p><span class="font-semibold">NIK:</span> {{ $data['nik'] ?? '3201234567890123' }}</p>
-            <p><span class="font-semibold">Alamat Lengkap:</span> {{ $data['alamat'] ?? 'Jl. Merdeka No. 123, RT 01/RW 02' }}</p>
-            <p><span class="font-semibold">No. HP:</span> {{ $data['telepon'] ?? '081234567890' }}</p>
-            <p><span class="font-semibold">No. Kartu Keluarga:</span> {{ $data['no_kk'] ?? '12121212122' }}</p>
-            <p><span class="font-semibold">Pekerjaan:</span> {{ $data['pekerjaan'] ?? 'bisnis' }}</p>
-            <p><span class="font-semibold">Keperluan:</span> {{ $data['keperluan'] ?? 'usaha baru' }}</p>
-        </div>
-
-        {{-- Penutup Surat --}}
-        <p class="mt-6 text-[15px] leading-relaxed">
-            Demikian surat keterangan ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
-        </p>
-
-        {{-- Tanda Tangan --}}
-        <div class="mt-10 flex justify-end">
-            <div class="text-center text-[15px] leading-relaxed">
-                <p>Yogyakarta, 25 November 2025</p>
-                <p class="mt-10 font-semibold">Lurah Example</p>
-                <p>[Nama Lurah]</p>
+        <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-start gap-4">
+                <a href="{{ route('riwayat.pengajuan') }}"
+                    class="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 
+                      flex items-center justify-center transition">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </a>
+                <div class="flex-1">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Detail Pengajuan Surat</h1>
+                    <p class="text-gray-600 text-sm">Informasi lengkap pengajuan surat Anda</p>
+                </div>
             </div>
         </div>
 
-    </div>
+        {{-- Status Card --}}
+        <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm">
+            @php
+                $statusConfig = [
+                    'pending' => [
+                        'icon' => 'fa-clock',
+                        'color' => 'yellow',
+                        'bgColor' => 'bg-yellow-50',
+                        'borderColor' => 'border-yellow-200',
+                        'textColor' => 'text-yellow-700',
+                        'label' => 'Menunggu Persetujuan',
+                        'desc' => 'Pengajuan Anda sedang menunggu untuk diproses oleh admin',
+                    ],
+                    'diproses' => [
+                        'icon' => 'fa-spinner',
+                        'color' => 'blue',
+                        'bgColor' => 'bg-blue-50',
+                        'borderColor' => 'border-blue-200',
+                        'textColor' => 'text-blue-700',
+                        'label' => 'Sedang Diproses',
+                        'desc' => 'Surat Anda sedang dalam proses pembuatan',
+                    ],
+                    'disetujui' => [
+                        'icon' => 'fa-check-circle',
+                        'color' => 'green',
+                        'bgColor' => 'bg-green-50',
+                        'borderColor' => 'border-green-200',
+                        'textColor' => 'text-green-700',
+                        'label' => 'Disetujui',
+                        'desc' => 'Surat Anda telah disetujui dan siap didownload',
+                    ],
+                    'ditolak' => [
+                        'icon' => 'fa-times-circle',
+                        'color' => 'red',
+                        'bgColor' => 'bg-red-50',
+                        'borderColor' => 'border-red-200',
+                        'textColor' => 'text-red-700',
+                        'label' => 'Ditolak',
+                        'desc' => 'Pengajuan surat Anda ditolak',
+                    ],
+                ];
+                $config = $statusConfig[$surat->status] ?? $statusConfig['pending'];
+            @endphp
 
-    {{-- ACTION BUTTONS --}}
-    <div class="w-full max-w-5xl mx-auto flex justify-between mt-8 px-1 md:px-0">
-
-        {{-- Edit Form --}}
-        <a href="{{ url()->previous() }}"
-            class="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition text-sm md:text-base">
-            Edit Form
-        </a>
-
-        {{-- Kirim Pengajuan --}}
-        <button id="konfirmasiBtn"
-            class="px-8 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition text-sm md:text-base">
-            Kirim Pengajuan
-        </button>
-
-    </div>
-
-</div>
-
-{{-- SWEETALERT --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.getElementById('konfirmasiBtn').addEventListener('click', function () {
-    Swal.fire({
-        showConfirmButton: true,
-        showCancelButton: true,
-
-        confirmButtonText: 'Konfirmasi',
-        cancelButtonText: 'Batal',
-        reverseButtons: true, // Konfirmasi di kanan
-
-        buttonsStyling: false,
-        customClass: {
-            popup: 'rounded-2xl p-7',
-            actions: 'mt-6 flex justify-end gap-3',
-
-            // Confirm (biru)
-            confirmButton:
-                'px-6 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow-sm',
-
-            // Cancel (abu)
-            cancelButton:
-                'px-6 py-2.5 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition shadow-sm'
-        },
-
-        html: `
-            <div class="flex items-start gap-5 text-left">
-
-                <!-- ICON SUCCESS -->
-                <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-500 text-6xl"></i>
+            <div class="flex items-start gap-4">
+                <div
+                    class="w-16 h-16 rounded-xl bg-{{ $config['color'] }}-100 text-{{ $config['color'] }}-700 
+                        flex items-center justify-center flex-shrink-0">
+                    <i class="fas {{ $config['icon'] }} text-3xl"></i>
                 </div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-gray-800 mb-1">{{ $config['label'] }}</h2>
+                    <p class="text-gray-600 text-sm mb-3">{{ $config['desc'] }}</p>
 
-                <!-- TEKS -->
+                    <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <span>
+                            <i class="fas fa-calendar mr-1"></i>
+                            Diajukan: {{ $surat->created_at->format('d M Y, H:i') }}
+                        </span>
+                        @if ($surat->updated_at != $surat->created_at)
+                            <span>
+                                <i class="fas fa-sync mr-1"></i>
+                                Diperbarui: {{ $surat->updated_at->format('d M Y, H:i') }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- Alasan Penolakan --}}
+            @if ($surat->status === 'ditolak' && $surat->alasan_penolakan)
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="{{ $config['bgColor'] }} border {{ $config['borderColor'] }} rounded-xl p-4">
+                        <p class="font-semibold {{ $config['textColor'] }} mb-2">
+                            <i class="fas fa-exclamation-circle mr-2"></i>Alasan Penolakan:
+                        </p>
+                        <p class="text-gray-700 text-sm">{{ $surat->alasan_penolakan }}</p>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        {{-- Info Surat --}}
+        <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-200">
+                <i class="fas fa-file-alt mr-2 text-blue-600"></i>Informasi Surat
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <p class="text-[20px] font-semibold text-gray-900">Success</p>
-
-                    <p class="text-[15px] text-gray-700 mt-2 leading-relaxed">
-                        Silakan klik <span class="font-semibold">‘Konfirmasi’</span>
-                        untuk mengirim pengajuan.
+                    <p class="text-sm text-gray-600 mb-1">Jenis Surat</p>
+                    <p class="font-semibold text-gray-800">{{ $surat->jenisSurat->nama_surat }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Nomor Pengajuan</p>
+                    <p class="font-semibold text-gray-800 font-mono">
+                        #{{ str_pad($surat->id, 6, '0', STR_PAD_LEFT) }}
                     </p>
                 </div>
-
             </div>
-        `
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Klik Konfirmasi -> ke route pengajuan.surat
-            window.location.href = "{{ route('pengajuan.surat') }}";
-        }
-    });
-});
-</script>
 
+            @if ($surat->jenisSurat->deskripsi)
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-sm text-gray-600 mb-1">Deskripsi</p>
+                    <p class="text-gray-700">{{ $surat->jenisSurat->deskripsi }}</p>
+                </div>
+            @endif
+        </div>
 
+        {{-- Data Pengajuan --}}
+        <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-200">
+                <i class="fas fa-database mr-2 text-blue-600"></i>Data Pengajuan
+            </h3>
+
+            @if ($surat->data_surat && count($surat->data_surat) > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach ($surat->data_surat as $key => $value)
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-sm text-gray-600 mb-1 font-medium">
+                                {{ ucfirst(str_replace('_', ' ', $key)) }}
+                            </p>
+                            <p class="text-gray-800">
+                                @if (is_array($value))
+                                    {{ implode(', ', $value) }}
+                                @elseif(is_bool($value))
+                                    {{ $value ? 'Ya' : 'Tidak' }}
+                                @else
+                                    {{ $value ?: '-' }}
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-gray-500 text-center py-4">Tidak ada data pengajuan</p>
+            @endif
+        </div>
+
+        {{-- Catatan --}}
+        @if ($surat->catatan)
+            <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-200">
+                    <i class="fas fa-sticky-note mr-2 text-blue-600"></i>Catatan Tambahan
+                </h3>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-gray-700">{{ $surat->catatan }}</p>
+                </div>
+            </div>
+        @endif
+
+        {{-- Timeline --}}
+        <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-3 border-b border-gray-200">
+                <i class="fas fa-history mr-2 text-blue-600"></i>Timeline Proses
+            </h3>
+
+            <div class="space-y-4">
+                {{-- Created --}}
+                <div class="flex items-start gap-4">
+                    <div
+                        class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-700 
+                            flex items-center justify-center">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">Pengajuan Dibuat</p>
+                        <p class="text-sm text-gray-600">{{ $surat->created_at->format('d M Y, H:i') }}</p>
+                    </div>
+                </div>
+
+                {{-- Processed --}}
+                @if ($surat->status !== 'pending')
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-100 text-yellow-700 
+                                flex items-center justify-center">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-800">Sedang Diproses</p>
+                            <p class="text-sm text-gray-600">{{ $surat->updated_at->format('d M Y, H:i') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Completed --}}
+                @if ($surat->status === 'disetujui' || $surat->status === 'ditolak')
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="flex-shrink-0 w-10 h-10 rounded-full 
+                                {{ $surat->status === 'disetujui' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}
+                                flex items-center justify-center">
+                            <i class="fas {{ $surat->status === 'disetujui' ? 'fa-check' : 'fa-times' }}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-gray-800">
+                                {{ $surat->status === 'disetujui' ? 'Disetujui' : 'Ditolak' }}
+                            </p>
+                            <p class="text-sm text-gray-600">{{ $surat->updated_at->format('d M Y, H:i') }}</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Actions --}}
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a href="{{ route('user.surat.riwayat') }}"
+                class="flex-1 py-3 px-6 bg-gray-100 text-gray-700 rounded-xl 
+                  hover:bg-gray-200 transition text-center font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali ke Riwayat
+            </a>
+
+            @if ($surat->status === 'disetujui' && $surat->file_surat)
+                <a href="{{ route('user.surat.download', $surat->id) }}"
+                    class="flex-1 py-3 px-6 bg-green-600 text-white rounded-xl 
+                      hover:bg-green-700 transition text-center font-medium">
+                    <i class="fas fa-download mr-2"></i>Download Surat
+                </a>
+            @endif
+
+            @if ($surat->status === 'ditolak')
+                <a href="{{ route('user.surat.form', $surat->jenis_surat_id) }}"
+                    class="flex-1 py-3 px-6 bg-blue-600 text-white rounded-xl 
+                      hover:bg-blue-700 transition text-center font-medium">
+                    <i class="fas fa-redo mr-2"></i>Ajukan Ulang
+                </a>
+            @endif
+        </div>
+
+    </div>
 
 @endsection
