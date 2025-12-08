@@ -464,10 +464,11 @@ public function previewSurat($id)
         abort(404, 'File PDF tidak ditemukan.');
     }
 
-    // Harus inline agar PDF.js bisa load
     return response()->file($path, [
         'Content-Type' => 'application/pdf',
         'Content-Disposition' => 'inline; filename="surat-' . $surat->id . '.pdf"',
+        'Access-Control-Allow-Origin' => '*',
+        'Cache-Control' => 'public, max-age=3600',
     ]);
 }
 

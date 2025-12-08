@@ -14,106 +14,115 @@
             <div class="relative w-full flex items-center justify-between px-0 sm:px-6">
 
                 @php
-                    $step = match ($surat->status) {
-                        'pending', 'verifikasi' => 1,
-                        'proses' => 2,
-                        'selesai', 'disetujui', 'ditolak' => 3,
-                        default => 1,
-                    };
-                    $step3Color = $surat->status === 'ditolak' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white';
+                    // Tentukan apakah sudah selesai (disetujui/ditolak)
+                    $isSelesai = in_array($surat->status, ['selesai', 'disetujui', 'ditolak']);
+                    $step3Color = $surat->status === 'ditolak' ? 'bg-red-600 text-white' : 'bg-green-600 text-white';
                 @endphp
 
                 <div class="relative w-full flex items-center justify-between mt-6">
 
                     {{-- Garis Progress --}}
                     <div
-                        class="absolute top-6 left-[9%] w-[35%] h-[4px] {{ $step >= 2 ? 'bg-blue-500' : 'bg-gray-300' }} rounded-full z-0">
+                        class="absolute top-7 left-[9%] w-[35%] h-[4px] bg-blue-500 rounded-full z-0 transition-all duration-500">
                     </div>
                     <div
-                        class="absolute top-6 left-[56%] w-[35%] h-[4px] {{ $step == 3 ? ($surat->status === 'ditolak' ? 'bg-red-500' : 'bg-blue-500') : 'bg-gray-300' }} rounded-full z-0">
+                        class="absolute top-7 left-[56%] w-[35%] h-[4px] {{ $isSelesai ? ($surat->status === 'ditolak' ? 'bg-red-500' : 'bg-green-500') : 'bg-gray-300' }} rounded-full z-0 transition-all duration-500">
                     </div>
 
-                    {{-- STEP 1 --}}
+                    {{-- STEP 1: Pengajuan (selalu biru) --}}
                     <div class="flex flex-col items-center z-10">
                         <div
-                            class="w-12 h-12 flex items-center justify-center rounded-full {{ $step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300' }}">
+                            class="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all duration-300">
+                            {{-- Icon Document/Paper --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                         </div>
-                        <span class="mt-2 text-sm">Pengajuan</span>
+                        <span class="mt-3 text-sm font-semibold text-blue-600">Pengajuan</span>
                     </div>
 
-                    {{-- STEP 2 --}}
+                    {{-- STEP 2: Sedang Diproses / Sudah Diproses --}}
                     <div class="flex flex-col items-center z-10">
                         <div
-                            class="w-12 h-12 flex items-center justify-center rounded-full {{ $step >= 2 ? 'border-4 border-blue-600 bg-white text-blue-600' : 'bg-gray-300' }}">
+                            class="relative w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all duration-300">
+
+                            @if (!$isSelesai)
+                                {{-- Animasi buffering spinner (hanya tampil saat BELUM selesai) --}}
+                                <svg class="animate-spin absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white"
+                                        stroke-width="3"></circle>
+                                    <path class="opacity-75" fill="white"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            @endif
+
+                            {{-- Icon Clock --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 relative z-10" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                         </div>
-                        <span class="mt-2 text-sm">Progress</span>
+                        <span class="mt-3 text-sm font-semibold text-blue-600">
+                            {{ $isSelesai ? 'Sudah Diproses' : 'Sedang Diproses' }}
+                        </span>
+                        @if (!$isSelesai)
+                            <span class="text-xs text-blue-500 mt-1 animate-pulse">Mohon tunggu...</span>
+                        @endif
                     </div>
 
-                    {{-- STEP 3 --}}
+                    {{-- STEP 3: Disetujui/Ditolak --}}
                     <div class="flex flex-col items-center z-10">
                         <div
-                            class="w-12 h-12 flex items-center justify-center rounded-full {{ $step == 3 ? $step3Color : 'bg-gray-300' }}">
+                            class="w-14 h-14 flex items-center justify-center rounded-full {{ $isSelesai ? $step3Color . ' shadow-lg' : 'bg-gray-300 text-gray-500' }} transition-all duration-300">
+                            @if ($isSelesai)
+                                @if ($surat->status === 'ditolak')
+                                    {{-- Icon X (Ditolak) --}}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                @else
+                                    {{-- Icon Check (Disetujui) --}}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                @endif
+                            @else
+                                {{-- Icon default saat belum selesai --}}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            @endif
                         </div>
-                        <span class="mt-2 text-sm">{{ $surat->status === 'ditolak' ? 'Ditolak' : 'Disetujui' }}</span>
+                        <span
+                            class="mt-3 text-sm font-semibold {{ $isSelesai ? ($surat->status === 'ditolak' ? 'text-red-600' : 'text-green-600') : 'text-gray-500' }}">
+                            {{ $surat->status === 'ditolak' ? 'Ditolak' : 'Disetujui' }}
+                        </span>
                     </div>
 
                 </div>
             </div>
         </div>
 
-        {{-- PDF Preview --}}
-        <div class="bg-white shadow-md rounded-xl p-4 sm:p-6 border border-gray-200 w-full overflow-auto">
+        {{-- PDF Preview dengan iframe --}}
+        <div class="bg-white shadow-md rounded-xl p-4 sm:p-6 border border-gray-200 w-full">
             @if ($surat->file_surat)
-                <div id="pdf-container" class="mx-auto" style="width:100%; max-width:800px;"></div>
+                <iframe src="{{ route('surat.preview', $surat->id) }}#toolbar=0"
+                    class="w-full border border-gray-300 rounded shadow-sm" style="height: 850px; min-height: 600px;"
+                    title="Preview Surat PDF" frameborder="0">
+                </iframe>
             @else
                 <p class="text-center text-gray-500 py-10">Surat belum tersedia untuk preview.</p>
             @endif
         </div>
 
     </div>
-@endsection
-
-@section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.min.js"></script>
-
-    <script>
-        @if ($surat->file_surat)
-            const url = "{{ route('surat.preview', $surat->id) }}";
-            const container = document.getElementById('pdf-container');
-
-            pdfjsLib.GlobalWorkerOptions.workerSrc =
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.6.172/pdf.worker.min.js';
-
-            async function renderPDF() {
-                try {
-                    const pdf = await pdfjsLib.getDocument(url).promise;
-
-                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                        const page = await pdf.getPage(pageNum);
-                        const viewport = page.getViewport({
-                            scale: 1.2
-                        }); // scale lebih aman
-
-                        const canvas = document.createElement('canvas');
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        canvas.classList.add('mx-auto', 'my-4', 'border', 'shadow');
-
-                        container.appendChild(canvas);
-
-                        await page.render({
-                            canvasContext: canvas.getContext('2d'),
-                            viewport
-                        }).promise;
-                    }
-                } catch (err) {
-                    console.error("PDF loading error:", err);
-                    container.innerHTML =
-                        "<p class='text-red-500 text-center py-10'>Gagal memuat PDF.</p>";
-                }
-            }
-
-            renderPDF();
-        @endif
-    </script>
 @endsection
